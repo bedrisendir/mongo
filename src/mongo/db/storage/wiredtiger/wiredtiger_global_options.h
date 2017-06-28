@@ -63,6 +63,7 @@ public:
     bool useIndexPrefixCompression;
     std::string collectionConfig;
     std::string indexConfig;
+    bool capi;
 };
 
 extern WiredTigerGlobalOptions wiredTigerGlobalOptions;

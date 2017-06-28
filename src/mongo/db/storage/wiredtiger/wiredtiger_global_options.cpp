@@ -75,6 +75,11 @@ Status WiredTigerGlobalOptions::add(moe::OptionSection* options) {
                            "WiredTiger storage engine custom "
                            "configuration settings")
         .hidden();
+    
+    wiredTigerOptions.addOptionChaining("capi",
+                                      "capi",
+                                      moe::Switch,
+                                      "capi log on or off");
 
     // WiredTiger collection options
     wiredTigerOptions
@@ -161,6 +166,10 @@ Status WiredTigerGlobalOptions::store(const moe::Environment& params,
         log() << "Index custom option: " << wiredTigerGlobalOptions.indexConfig;
     }
 
+    if (params.count("capi")) {
+        wiredTigerGlobalOptions.capi =
+            params["capi"].as<bool>();
+    }
     return Status::OK();
 }
 

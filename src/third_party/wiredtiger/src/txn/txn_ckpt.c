@@ -548,7 +548,7 @@ __txn_checkpoint(WT_SESSION_IMPL *session, const char *cfg[])
 	void *saved_meta_next;
 	u_int i;
 	uint64_t fsync_duration_usecs;
-	bool full, idle, logging, tracking;
+	bool full, idle, logging, tracking, capi;
 	const char *txn_cfg[] = { WT_CONFIG_BASE(session,
 	    WT_SESSION_begin_transaction), "isolation=snapshot", NULL };
 
@@ -571,6 +571,8 @@ __txn_checkpoint(WT_SESSION_IMPL *session, const char *cfg[])
 
 	/* Configure logging only if doing a full checkpoint. */
 	logging = FLD_ISSET(conn->log_flags, WT_CONN_LOG_ENABLED);
+
+	capi = FLD_ISSET(conn->log_flags, WT_CONN_LOG_CAPI_ENABLED);
 
 	/* Reset the maximum page size seen by eviction. */
 	conn->cache->evict_max_page_size = 0;
@@ -597,9 +599,18 @@ __txn_checkpoint(WT_SESSION_IMPL *session, const char *cfg[])
 	WT_ERR(__checkpoint_reduce_dirty_cache(session));
 
 	/* Tell logging that we are about to start a database checkpoint. */
-	if (full && logging)
+	if (full && logging){
+		WT_CAPI_PRINT("BBP:Starting CHPXT\n");
 		WT_ERR(__wt_txn_checkpoint_log(
 		    session, full, WT_TXN_LOG_CKPT_PREPARE, NULL));
+	}
+
+    /*Save current context*/
+	if(capi){
+		WT_CAPI_PRINT("Checkpoint started... Saving the current context.\n");
+		__wt_capilog_saveContext();
+	}
+
 
 	WT_ERR(__checkpoint_verbose_track(session,
 	    "starting transaction", &verb_timer));
@@ -719,9 +730,11 @@ __txn_checkpoint(WT_SESSION_IMPL *session, const char *cfg[])
 	WT_ERR(__checkpoint_release_clean_trees(session));
 
 	/* Tell logging that we have started a database checkpoint. */
-	if (full && logging)
+	if (full && logging){
+		WT_CAPI_PRINT("BBP:Started CHPXT\n");
 		WT_ERR(__wt_txn_checkpoint_log(
 		    session, full, WT_TXN_LOG_CKPT_START, NULL));
+	}
 
 	WT_ERR(__checkpoint_apply(session, cfg, __checkpoint_tree_helper));
 
@@ -855,6 +868,13 @@ err:	/*
 		WT_TRET(__wt_txn_checkpoint_log(session, full,
 		    (ret == 0 && !idle) ?
 		    WT_TXN_LOG_CKPT_STOP : WT_TXN_LOG_CKPT_CLEANUP, NULL));
+		WT_CAPI_PRINT("BBP:Finished CHPXT\n");
+	}
+
+    /*Discard finished stuff*/
+	if(capi){
+		WT_CAPI_PRINT("Checkpoint finished... At this point capi logging should start deleting stuff..\n");
+		__wt_capilog_discardFlushed();
 	}
 
 	for (i = 0; i < session->ckpt_handle_next; ++i) {

@@ -162,12 +162,12 @@ __wt_txn_log_op(WT_SESSION_IMPL *session, WT_CURSOR_BTREE *cbt)
 	WT_TXN_OP *op;
 
 	txn = &session->txn;
-
-	if (!FLD_ISSET(S2C(session)->log_flags, WT_CONN_LOG_ENABLED) ||
-	    F_ISSET(session, WT_SESSION_NO_LOGGING) ||
-	    F_ISSET(S2BT(session), WT_BTREE_NO_LOGGING))
-		return (0);
-
+    if (!FLD_ISSET(S2C(session)->log_flags, WT_CONN_LOG_CAPI_ENABLED)) {
+	    if (!FLD_ISSET(S2C(session)->log_flags, WT_CONN_LOG_ENABLED) ||
+	       F_ISSET(session, WT_SESSION_NO_LOGGING) ||
+	       F_ISSET(S2BT(session), WT_BTREE_NO_LOGGING))
+		   return (0);
+    }
 	/* We'd better have a transaction. */
 	WT_ASSERT(session,
 	    F_ISSET(txn, WT_TXN_RUNNING) && F_ISSET(txn, WT_TXN_HAS_ID));

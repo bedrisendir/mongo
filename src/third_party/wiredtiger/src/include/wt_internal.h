@@ -354,7 +354,8 @@ union __wt_rand_state;
 #include "schema.h"
 #include "thread_group.h"
 #include "txn.h"
-
+#include "capilog.h"
+ 
 #include "session.h"			/* required by connection.h */
 #include "connection.h"
 

@@ -244,6 +244,14 @@ file_config = format_meta + [
             if false, this object has checkpoint-level durability''',
             type='boolean'),
         ]),
+    Config('capi', '', r'''
+        the capi configuration for this object.  Only valid if
+        log is enabled in ::wiredtiger_open.''',
+        type='category', subconfig=[
+        Config('enabled', 'false', r'''
+            if false, this object has checkpoint-level durability.''',
+            type='boolean'),
+        ]),
     Config('memory_page_max', '5MB', r'''
         the maximum size a page can grow to in memory before being
         reconciled to disk.  The specified size will be adjusted to a lower
@@ -516,6 +524,7 @@ connection_runtime_config = [
             'metadata',
             'mutex',
             'overflow',
+            'capi',
             'read',
             'rebalance',
             'reconcile',
@@ -775,6 +784,14 @@ wiredtiger_open = wiredtiger_open_common + [
         variables even if the process is running with special privileges.
         See @ref home for more information''',
         type='boolean'),
+    Config('capi', '', r'''
+        the capi configuration for this object.  Only valid if
+        log is enabled in ::wiredtiger_open.''',
+        type='category', subconfig=[
+        Config('enabled', 'false', r'''
+            if false, this object has checkpoint-level durability.''',
+            type='boolean'),
+        ]),
 ]
 
 cursor_runtime_config = [

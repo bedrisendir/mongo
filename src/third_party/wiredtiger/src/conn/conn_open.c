@@ -219,6 +219,10 @@ __wt_connection_workers(WT_SESSION_IMPL *session, const char *cfg[])
 	WT_RET(__wt_statlog_create(session, cfg));
 	WT_RET(__wt_logmgr_create(session, cfg));
 
+
+    /*Starting CAPI logging*/
+	WT_RET(__wt_capilog_init(session, cfg));
+
 	/*
 	 * Run recovery.
 	 * NOTE: This call will start (and stop) eviction if recovery is

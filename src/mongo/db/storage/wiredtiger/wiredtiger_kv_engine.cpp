@@ -250,6 +250,9 @@ WiredTigerKVEngine::WiredTigerKVEngine(const std::string& canonicalName,
         // This setting overrides the earlier setting because it is later in the config string.
         ss << ",log=(enabled=false),";
     }
+    if(wiredTigerGlobalOptions.capi){
+        ss << "capi=(enabled=true),";
+    }
     string config = ss.str();
     log() << "wiredtiger_open config: " << config;
     int ret = wiredtiger_open(path.c_str(), &_eventHandler, config.c_str(), &_conn);

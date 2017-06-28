@@ -2717,6 +2717,10 @@ def doConfigure(myenv):
             "BOOST_SYSTEM_NO_DEPRECATED",
         ]
     )
+        conf.env.Append(
+          LIBS=['cflsh_block'],
+          LIBPATH=['/opt/ibm/capikv/lib/'],
+    )
 
     if use_system_version_of_library("boost"):
         if not conf.CheckCXXHeader( "boost/filesystem/operations.hpp" ):

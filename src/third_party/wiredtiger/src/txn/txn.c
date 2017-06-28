@@ -576,6 +576,32 @@ __wt_txn_commit(WT_SESSION_IMPL *session, const char *cfg[])
 		ret = __wt_txn_log_commit(session, cfg);
 	}
 
+	/*Check if CAPI logging is enabled and log the entry*/
+	/*nojournal unsets the WT_CONN_LOG_ENABLED  so we need to provide an alternative to this..*/
+	if (ret == 0 && txn->mod_count > 0 &&
+	    FLD_ISSET(conn->log_flags, WT_CONN_LOG_CAPI_ENABLED)) {
+		/*
+		 * We are about to block on I/O writing the capi log.
+		 * Release our snapshot in case it is keeping data pinned.
+		 * This is particularly important for checkpoints.
+		 */
+
+		//__wt_txn_release_snapshot(session);
+		//WT_TXN *txn;
+
+		//WT_UNUSED(cfg);
+		//txn = &session->txn;
+	    /*
+	    * If there are no log records there is nothing to do.
+	    */
+	    if (txn->logrec == NULL) {
+	       printf("CAPILOG:Log record for this txn is NULL\n");
+		   return (0);
+	    }
+
+		ret = __wt_capilog_write(session, txn->logrec, NULL, txn->txn_logsync);
+	}
+
 	/*
 	 * If anything went wrong, roll back.
 	 *

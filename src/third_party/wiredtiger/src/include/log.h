@@ -28,7 +28,7 @@ union __wt_lsn {
 #define	WT_LOG_TMPNAME	"WiredTigerTmplog"	/* Log temporary name */
 
 /* Logging subsystem declarations. */
-#define	WT_LOG_ALIGN			128
+#define	WT_LOG_ALIGN			4096
 
 /*
  * Atomically set the two components of the LSN.
@@ -263,6 +263,7 @@ struct __wt_log {
 };
 
 struct __wt_log_record {
+	uint32_t	unique_id;	/*0-3*/
 	uint32_t	len;		/* 00-03: Record length including hdr */
 	uint32_t	checksum;	/* 04-07: Checksum of the record */
 
